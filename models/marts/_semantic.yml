@@ -1,16 +1,11 @@
 version: 2
 
 semantic_models:
-  # ---------------------------------------------------------
-  # FACT: fct_orders
-  # ---------------------------------------------------------
   - name: fct_orders
     description: "Modello semantico centrale basato sugli order line items."
     model: ref('fct_orders')
-    
     defaults:
       agg_time_dimension: order_date
-
     entities:
       - name: order_item
         type: primary
@@ -27,7 +22,6 @@ semantic_models:
       - name: part
         type: foreign
         expr: part_key
-
     dimensions:
       - name: order_date
         type: time
@@ -45,7 +39,6 @@ semantic_models:
         type: categorical
       - name: ship_mode
         type: categorical
-
     measures:
       - name: total_net_revenue
         description: "Somma delle vendite nette (dopo gli sconti, prima delle tasse)."
@@ -68,18 +61,13 @@ semantic_models:
         expr: order_item_key
         agg: count
 
-  # ---------------------------------------------------------
-  # DIMENSION: dim_customers
-  # ---------------------------------------------------------
   - name: dim_customers
     description: "Modello semantico per i clienti e la loro geografia."
     model: ref('dim_customers')
-    
     entities:
       - name: customer
         type: primary
         expr: customer_key
-
     dimensions:
       - name: market_segment
         type: categorical
@@ -88,36 +76,26 @@ semantic_models:
       - name: customer_region
         type: categorical
 
-  # ---------------------------------------------------------
-  # DIMENSION: dim_suppliers
-  # ---------------------------------------------------------
   - name: dim_suppliers
     description: "Modello semantico per i fornitori."
     model: ref('dim_suppliers')
-    
     entities:
       - name: supplier
         type: primary
         expr: supplier_key
-
     dimensions:
       - name: supplier_nation
         type: categorical
       - name: supplier_region
         type: categorical
 
-  # ---------------------------------------------------------
-  # DIMENSION: dim_parts
-  # ---------------------------------------------------------
   - name: dim_parts
     description: "Modello semantico per le parti/prodotti."
     model: ref('dim_parts')
-    
     entities:
       - name: part
         type: primary
         expr: part_key
-
     dimensions:
       - name: manufacturer
         type: categorical
@@ -126,10 +104,6 @@ semantic_models:
       - name: part_type
         type: categorical
 
-
-# =========================================================
-# METRICS
-# =========================================================
 metrics:
   - name: total_net_revenue
     description: "Ricavi netti totali"
