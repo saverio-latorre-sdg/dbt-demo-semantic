@@ -34,6 +34,7 @@ clean-targets:         # directories to be removed by `dbt clean`
 
 models:
   dbt_demo_semantic:
+    +database: dbt_demo_semantic
     # Applies to all files under models/example/
     staging:
       +schema: staging
