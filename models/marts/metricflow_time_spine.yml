@@ -1,0 +1,13 @@
+version: 2
+ 
+models:
+  - name: metricflow_time_spine
+    description: >
+      Time spine for MetricFlow. One row per day from 2000-01-01
+      to 2 years from today. Required for cumulative metrics and
+      time-series gap filling.
+    time_spine:
+      standard_granularity_column: date_day
+    columns:
+      - name: date_day
+        granularity: day

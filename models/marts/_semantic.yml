@@ -1,0 +1,183 @@
+version: 2
+
+semantic_models:
+  # ---------------------------------------------------------
+  # FACT: fct_orders
+  # ---------------------------------------------------------
+  - name: fct_orders
+    description: "Modello semantico centrale basato sugli order line items."
+    model: ref('fct_orders')
+    
+    defaults:
+      agg_time_dimension: order_date
+
+    entities:
+      - name: order_item
+        type: primary
+        expr: order_item_key
+      - name: sales_order  # Rinominato per evitare la parola riservata SQL 'order'
+        type: foreign
+        expr: order_key
+      - name: customer
+        type: foreign
+        expr: customer_key
+      - name: supplier
+        type: foreign
+        expr: supplier_key
+      - name: part
+        type: foreign
+        expr: part_key
+
+    dimensions:
+      - name: order_date
+        type: time
+        type_params:
+          time_granularity: day
+      - name: ship_date
+        type: time
+        type_params:
+          time_granularity: day
+      - name: receipt_date
+        type: time
+        type_params:
+          time_granularity: day
+      - name: order_status_code
+        type: categorical
+      - name: order_priority_code
+        type: categorical
+      - name: return_flag
+        type: categorical
+      - name: line_status
+        type: categorical
+      - name: ship_mode
+        type: categorical
+
+    measures:
+      - name: net_revenue_sum
+        description: "Somma delle vendite nette (dopo gli sconti, prima delle tasse)."
+        expr: net_item_sales_amount
+        agg: sum
+      - name: gross_revenue_sum
+        description: "Somma delle vendite lorde (dopo sconti e tasse)."
+        expr: gross_item_sales_amount
+        agg: sum
+      - name: quantity_sum
+        description: "Quantità totale degli articoli ordinati."
+        expr: quantity
+        agg: sum
+      - name: order_count
+        description: "Conteggio degli ordini univoci."
+        expr: order_key
+        agg: count_distinct
+      - name: order_item_count
+        description: "Conteggio delle righe d'ordine."
+        expr: order_item_key
+        agg: count
+
+  # ---------------------------------------------------------
+  # DIMENSION: dim_customers
+  # ---------------------------------------------------------
+  - name: dim_customers
+    description: "Modello semantico per i clienti e la loro geografia."
+    model: ref('dim_customers')
+    
+    entities:
+      - name: customer
+        type: primary
+        expr: customer_key
+
+    dimensions:
+      - name: market_segment
+        type: categorical
+      - name: customer_nation
+        type: categorical
+      - name: customer_region
+        type: categorical
+
+  # ---------------------------------------------------------
+  # DIMENSION: dim_suppliers
+  # ---------------------------------------------------------
+  - name: dim_suppliers
+    description: "Modello semantico per i fornitori."
+    model: ref('dim_suppliers')
+    
+    entities:
+      - name: supplier
+        type: primary
+        expr: supplier_key
+
+    dimensions:
+      - name: supplier_nation
+        type: categorical
+      - name: supplier_region
+        type: categorical
+
+  # ---------------------------------------------------------
+  # DIMENSION: dim_parts
+  # ---------------------------------------------------------
+  - name: dim_parts
+    description: "Modello semantico per le parti/prodotti."
+    model: ref('dim_parts')
+    
+    entities:
+      - name: part
+        type: primary
+        expr: part_key
+
+    dimensions:
+      - name: manufacturer
+        type: categorical
+      - name: brand
+        type: categorical
+      - name: part_type
+        type: categorical
+
+
+# =========================================================
+# METRICS
+# =========================================================
+metrics:
+  - name: total_net_revenue
+    description: "Ricavi netti totali"
+    label: "Total Net Revenue"
+    type: simple
+    type_params:
+      measure: net_revenue_sum
+
+  - name: total_gross_revenue
+    description: "Ricavi lordi totali"
+    label: "Total Gross Revenue"
+    type: simple
+    type_params:
+      measure: gross_revenue_sum
+
+  - name: total_orders
+    description: "Numero totale di ordini univoci effettuati"
+    label: "Total Orders"
+    type: simple
+    type_params:
+      measure: order_count
+
+  - name: total_quantity_sold
+    description: "Quantità totale di prodotti venduti"
+    label: "Total Quantity Sold"
+    type: simple
+    type_params:
+      measure: quantity_sum
+
+  - name: total_order_items
+    description: "Numero totale di righe d'ordine elaborate"
+    label: "Total Order Items"
+    type: simple
+    type_params:
+      measure: order_item_count
+
+  - name: average_order_value
+    description: "Valore medio dell'ordine (Net Revenue / Numero di Ordini)"
+    label: "Average Order Value (AOV)"
+    type: derived
+    type_params:
+      expr: total_net_revenue / total_orders
+      metrics:
+        - name: total_net_revenue
+        - name: total_orders
