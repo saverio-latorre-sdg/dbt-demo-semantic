@@ -73,6 +73,10 @@ semantic_models:
         description: "Conteggio delle righe d'ordine."
         expr: order_item_key
         agg: count
+      - name: customers_count
+        description: "Conteggio univoco dei clienti."
+        expr: customer_key
+        agg: count_distinct
 
   # ---------------------------------------------------------
   # DIMENSION: dim_customers
@@ -80,10 +84,12 @@ semantic_models:
   - name: dim_customers
     description: "Modello semantico per i clienti e la loro geografia."
     model: ref('dim_customers')
+  
+    primary_entity: customer
     
     entities:
       - name: customer
-        type: primary
+        type: natural
         expr: customer_key
 
     dimensions:
@@ -93,6 +99,20 @@ semantic_models:
         type: categorical
       - name: customer_region
         type: categorical
+      - name: valid_from
+        type: time
+        expr: valid_from
+        type_params:
+          time_granularity: day
+          validity_params:
+            is_start: true
+      - name: valid_to
+        type: time
+        expr: valid_to
+        type_params:
+          time_granularity: day
+          validity_params:
+            is_end: true
 
   # ---------------------------------------------------------
   # DIMENSION: dim_suppliers
@@ -181,3 +201,10 @@ metrics:
       metrics:
         - name: total_net_revenue
         - name: total_orders
+
+  - name: count_active_customers
+    label: "Active Customers Number"
+    description: "Conta il numero di clienti distinti che hanno effettuato almeno un ordine nel periodo selezionato."
+    type: simple
+    type_params:
+      measure: customers_count
