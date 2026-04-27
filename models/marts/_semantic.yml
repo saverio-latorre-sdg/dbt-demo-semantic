@@ -117,6 +117,7 @@ semantic_models:
   # ---------------------------------------------------------
   # DIMENSION: dim_suppliers
   # ---------------------------------------------------------
+  # dbt sl query --metrics total_net_revenue --group-by metric_time__month,customer__customer_region --where "{{ TimeDimension('metric_time') }} = '2024-12-31'"
   - name: dim_suppliers
     description: "Modello semantico per i fornitori."
     model: ref('dim_suppliers')
@@ -157,6 +158,7 @@ semantic_models:
 # METRICS
 # =========================================================
 metrics:
+# 0. SIMPLE
   - name: total_net_revenue
     description: "Ricavi netti totali"
     label: "Total Net Revenue"
@@ -208,3 +210,57 @@ metrics:
     type: simple
     type_params:
       measure: customers_count
+
+  # 1. CUMULATIVE: Valori aggregati nel tempo (es. YTD)
+  # dbt sl query --metrics return_rate --where "{{ TimeDimension('metric_time') }} >= '2020-01-01' AND {{ TimeDimension('metric_time') }} <= '2025-03-31'"
+  - name: ytd_net_revenue
+    description: "Ricavi netti cumulati da inizio anno (Year-To-Date)."
+    label: "YTD Net Revenue"
+    type: cumulative
+    type_params:
+      measure: net_revenue_sum
+      grain_to_date: year
+
+  # 2. DERIVED: Calcoli matematici tra metriche esistenti
+  # dbt sl query --metrics average_items_per_order --where "{{ TimeDimension('metric_time') }} >= '2020-01-01' AND {{ TimeDimension('metric_time') }} <= '2025-03-31'" --group-by customer__customer_nation
+  - name: average_items_per_order
+    description: "Numero medio di articoli venduti per singolo ordine."
+    label: "Avg Items per Order"
+    type: derived
+    type_params:
+      expr: total_quantity_sold / total_orders
+      metrics:
+        - name: total_quantity_sold
+        - name: total_orders
+
+
+  # 3. RATIO: Rapporto tra un numeratore e un denominatore
+  - name: returned_orders
+    description: "Numero di ordini che hanno subito un reso."
+    label: "Returned Orders"
+    type: simple
+    type_params:
+      measure: order_count
+    filter: |
+      {{ Dimension('order_item__return_flag') }} = 'returned'
+
+  - name: return_rate
+    description: "Percentuale di ordini resi rispetto al totale degli ordini."
+    label: "Return Rate"
+    type: ratio
+    type_params:
+      numerator: returned_orders
+      denominator: total_orders
+
+  # 4. CONVERSION: Analisi di imbuto (Funnel) tra due eventi
+  # dbt sl query --metrics customer_engagement_conversion --group-by customer__customer_nation,metric_time__month --where "{{ TimeDimension('metric_time') }} >= '2025-01-01' AND {{ TimeDimension('metric_time') }} <= '2025-12-31'"
+  - name: customer_engagement_conversion
+    description: "Tasso di conversione dei clienti che, una volta registrati/attivi, generano righe d'ordine entro 30 giorni."
+    label: "Customer Engagement Conversion"
+    type: conversion
+    type_params:
+      conversion_type_params:
+        base_measure: customers_count
+        conversion_measure: order_item_count
+        entity: customer
+        window: 30 days
