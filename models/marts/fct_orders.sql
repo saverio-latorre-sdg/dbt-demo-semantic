@@ -16,10 +16,11 @@ with
             part_key,
 
             -- dates
-            order_date,
+            dateadd(day, uniform(0, datediff(day, '2022-01-01'::date, '2025-12-31'::date), random()),'2022-01-01'::date) AS order_date, -- date random tra il 2022 e il 2025 
             ship_date,
             commit_date,
             receipt_date,
+            dateadd(month, 1, current_date()) as variation_date, 
 
             -- degenerate dimensions (attributes of the event, no dedicated dim)
             order_status_code,
