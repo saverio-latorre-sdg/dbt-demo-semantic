@@ -1,0 +1,4 @@
+groups:
+  - name: dbt-semantic-layer
+    owner:
+      email: claudia.dipasquale@sdggroup.com

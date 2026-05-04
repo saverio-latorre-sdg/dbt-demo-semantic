@@ -45,6 +45,7 @@ models:
     marts:
       +schema: marts
       +materialized: table
+      +access: private
 flags:
   require_generic_test_arguments_property: true
 
