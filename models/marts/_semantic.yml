@@ -166,7 +166,7 @@ metrics:
     type_params:
       measure: net_revenue_sum
     config:
-      group: dbt-semantic-layer
+      group: test-semantic-layer
       access: private
 
   - name: total_gross_revenue
@@ -176,7 +176,7 @@ metrics:
     type_params:
       measure: gross_revenue_sum
     config:
-      group: dbt-semantic-layer
+      group: test-semantic-layer
       access: private
 
   - name: total_orders
@@ -258,7 +258,7 @@ metrics:
       numerator: returned_orders
       denominator: total_orders
     config:
-      group: dbt-semantic-layer
+      group: test-semantic-layer
       access: private
 
   # 4. CONVERSION: Analisi di imbuto (Funnel) tra due eventi
