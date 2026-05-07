@@ -34,6 +34,8 @@ clean-targets:         # directories to be removed by `dbt clean`
 
 models:
   dbt_demo_semantic:
+    +access: private
+    +group: dbt-semantic-layer
     +database: dbt_demo_semantic
     # Applies to all files under models/example/
     staging:
@@ -45,6 +47,13 @@ models:
     marts:
       +schema: marts
       +materialized: table
+
+snapshots: 
+    +group: dbt-semantic-layer
+
+seeds: 
+    +group: dbt-semantic-layer
+
 flags:
   require_generic_test_arguments_property: true
 

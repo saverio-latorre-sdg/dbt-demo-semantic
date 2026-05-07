@@ -165,6 +165,9 @@ metrics:
     type: simple
     type_params:
       measure: net_revenue_sum
+    config:
+      group: test-semantic-layer
+      access: private
 
   - name: total_gross_revenue
     description: "Ricavi lordi totali"
@@ -172,6 +175,9 @@ metrics:
     type: simple
     type_params:
       measure: gross_revenue_sum
+    config:
+      group: test-semantic-layer
+      access: private
 
   - name: total_orders
     description: "Numero totale di ordini univoci effettuati"
@@ -251,6 +257,9 @@ metrics:
     type_params:
       numerator: returned_orders
       denominator: total_orders
+    config:
+      group: test-semantic-layer
+      access: private
 
   # 4. CONVERSION: Analisi di imbuto (Funnel) tra due eventi
   # dbt sl query --metrics customer_engagement_conversion --group-by customer__customer_nation,metric_time__month --where "{{ TimeDimension('metric_time') }} >= '2025-01-01' AND {{ TimeDimension('metric_time') }} <= '2025-12-31'"
