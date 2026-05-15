@@ -6,7 +6,7 @@ sources:
       TPC-H is a decision support benchmark dataset available as a sample
       database in Snowflake. It models a company managing parts, suppliers,
       customers and orders at scale.
-    database: dbt_demo_platform
+    database: dbt_semantic_layer
     schema: raw
     config:
       freshness:
